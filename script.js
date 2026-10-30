@@ -104,6 +104,7 @@ class ABCRaceLoadScene extends Phaser.Scene {
             this.load.image(number, `images/numbers/${number}.svg`);
         this.load.image("logo", "images/logo.png");
         this.load.image("timer", "images/timer.svg");
+        this.load.svg("qr", "images/qr.svg", { width: 330, height: 330 });
         this.load.spritesheet("lowercase_buttons", "images/lowercase_buttons.png", { frameHeight: 160, frameWidth: 210 });
         this.load.spritesheet("random_buttons", "images/random_buttons.png", { frameHeight: 160, frameWidth: 210 });
         this.load.spritesheet("uppercase_buttons", "images/uppercase_buttons.png", { frameHeight: 160, frameWidth: 210 });
@@ -230,6 +231,47 @@ class ABCRaceMenuScene extends Phaser.Scene {
             this.sound.stopByKey("menu_bgm");
             this.scene.start(ABCRacePlayScene.Key, args);
         });
+        this.addShareButton();
+    }
+    addShareButton() {
+        const size = 70;
+        const x = ABCRace.WIDTH - size - 12;
+        const y = 12;
+        const buttonBack = this.add.graphics();
+        buttonBack.fillStyle(0xFFFFFF, 1);
+        buttonBack.fillRoundedRect(x, y, size, size, 10);
+        buttonBack.lineStyle(4, 0x000000, 1);
+        buttonBack.strokeRoundedRect(x, y, size, size, 10);
+        const buttonIcon = this.add.image(x + size / 2, y + size / 2, "qr");
+        buttonIcon.setScale((size - 14) / buttonIcon.width);
+        const hitArea = this.add.zone(x, y, size, size).setOrigin(0, 0);
+        hitArea.setInteractive({ cursor: "pointer" });
+        hitArea.on("pointerover", () => buttonBack.setAlpha(0.8));
+        hitArea.on("pointerout", () => buttonBack.setAlpha(1));
+        const popup = this.add.container(0, 0).setDepth(10).setVisible(false);
+        const shade = this.add.rectangle(0, 0, ABCRace.WIDTH, ABCRace.HEIGHT, 0x000000, 0.6).setOrigin(0, 0);
+        shade.setInteractive({ cursor: "pointer" });
+        const panel = this.add.graphics();
+        panel.fillStyle(0xFFFFFF, 1);
+        panel.fillRoundedRect(200, 40, 400, 520, 20);
+        panel.lineStyle(6, 0x000000, 1);
+        panel.strokeRoundedRect(200, 40, 400, 520, 20);
+        const bigQr = this.add.image(ABCRace.WIDTH / 2, 230, "qr");
+        const urlText = this.add.text(ABCRace.WIDTH / 2, 430, "nagasakimark.github.io/abcrace").setOrigin(0.5, 0.5);
+        urlText.setFontFamily("Arial");
+        urlText.setFontSize(24);
+        urlText.setFontStyle("bold");
+        urlText.setColor("#000000");
+        const closeText = this.add.text(ABCRace.WIDTH / 2, 500, "Tap to close").setOrigin(0.5, 0.5);
+        closeText.setFontFamily("Arial");
+        closeText.setFontSize(22);
+        closeText.setColor("#697753");
+        popup.add([shade, panel, bigQr, urlText, closeText]);
+        hitArea.on("pointerup", () => {
+            this.sound.play("menu_switch");
+            popup.setVisible(true);
+        });
+        shade.on("pointerup", () => popup.setVisible(false));
     }
 }
 ABCRaceMenuScene.Key = "MENU";
